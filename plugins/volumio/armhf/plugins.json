@@ -511,6 +511,24 @@
 						}
 					],
 					"updated": "18-10-2019"
+				},
+				{
+					"prettyName": "GPIOTester",
+					"icon": "fa-lightbulb-o",
+					"name": "gpiotester",
+					"version": "1.0.0",
+					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/miscellanea/gpiotester/gpiotester.zip",
+					"license": "ISC",
+					"description": "Wie GPIO-Tester nur ohne Bindestrich",
+					"details": "Just a working Plugin with Toast Messages",
+					"author": "Andres",
+					"screenshots": [
+						{
+							"image": "",
+							"thumb": ""
+						}
+					],
+					"updated": "3-12-2019"
 				}
 			]
 		},
