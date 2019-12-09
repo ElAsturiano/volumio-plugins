@@ -609,6 +609,24 @@
 						}
 					],
 					"updated": "29-3-2019"
+				},
+				{
+					"prettyName": "presence_registrator",
+					"icon": "fa-lightbulb-o",
+					"name": "presence_registrator",
+					"version": "1.0.0",
+					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/system_controller/presence_registrator/presence_registrator.zip",
+					"license": "ISC",
+					"description": "Checks a pin for rising/falling edges and adapts the volume accordingly.",
+					"details": "Issue: Config page cant be saved",
+					"author": "Andres",
+					"screenshots": [
+						{
+							"image": "",
+							"thumb": ""
+						}
+					],
+					"updated": "9-12-2019"
 				}
 			]
 		},
