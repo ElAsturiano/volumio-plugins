@@ -41,7 +41,9 @@ presenceRegistrator.prototype.onVolumioStart = function()
 presenceRegistrator.prototype.onStart = function() {
     var self = this;
 	var defer=libQ.defer();
-
+	
+	// Set all Triggers
+	self.createTriggers();
 	
 	// Log Plugin start
 	self.logger.info("Presence Registrator started.");
@@ -61,6 +63,9 @@ presenceRegistrator.prototype.onStart = function() {
 presenceRegistrator.prototype.onStop = function() {
     var self = this;
     var defer=libQ.defer();
+	
+	// Clear all Triggers
+	self.clearTriggers();
 	
 	// Log Plugin stop
 	self.logger.info("Presence Registrator stopped.");
