@@ -1,0 +1,64 @@
+{
+  "page": {
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION"
+  },
+	"sections": [
+   {
+      "id": "section_general",
+      "element": "section",
+      "label": "TRANSLATE.GENERAL_SETTINGS",
+      "icon": "fa-plug",
+      "onSave": {"type":"controller", "endpoint":"system_controller/presence_registrator", "method":"saveConfig"},
+      "saveButton": {
+        "label": "TRANSLATE.SAVE",
+        "data": [
+          "maxVol",
+		  "minVol",
+          "listenedPin"
+        ]
+      },
+      "content": [
+        {
+          "id": "maxVol",
+          "type":"number",
+          "element": "input",
+          "doc": "This is the maximum volume that a user wishes to hear music at in this room",
+          "label": "Maximum Volume",
+          "value": "50"
+        },
+		{
+          "id": "minVol",
+          "type":"number",
+          "element": "input",
+          "doc": "This is the minimum volume that a user wishes to have in this room when nobody is present",
+          "label": "Minimum Volume",
+          "value": "20"
+        },
+        {
+          "id": "listenedPin",
+          "type":"number",
+          "element": "input",
+          "doc": "This is the pin number the plugin listens to to determine the presence of a person in this room",
+          "label": "Presence Listener Pin Number",
+          "value": "17"
+        }
+      ]
+    },
+	{
+      "id": "section_general_get",
+      "element": "section",
+      "label": "TRANSLATE.GENERAL_SETTINGS_SHOW",
+      "icon": "fa-plug",
+      "onSave": {"type":"controller", "endpoint":"system_controller/presence_registrator", "method":"showConfig"},
+      "saveButton": {
+        "label": "TRANSLATE.SHOW",
+        "data": [
+          
+        ]
+      },
+      "content": [
+        
+      ]
+    }
+  ]
+}

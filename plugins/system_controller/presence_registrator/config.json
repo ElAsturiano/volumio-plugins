@@ -1,0 +1,22 @@
+{
+  "enabled": {
+    "type": "boolean",
+    "value": false
+  },
+  "maxVol": {
+    "type": "number",
+    "value": 50
+  },
+  "minVol": {
+    "type": "number",
+    "value": 20
+  },
+  "listenedPin": {
+    "type": "number",
+    "value": 17
+  },
+  "present": {
+    "type": "boolean",
+    "value": false
+  }
+}
