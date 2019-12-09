@@ -46,6 +46,9 @@ presenceRegistrator.prototype.onStart = function() {
 	// Log Plugin start
 	self.logger.info("Presence Registrator started.");
 	
+	// Set config
+	self.config.set('enabled',true);
+	
 	// Notify user about Plugin start
 	self.commandRouter.pushToastMessage('success', "Hola!", "Presence Registrator enabled!");
 	
@@ -61,6 +64,9 @@ presenceRegistrator.prototype.onStop = function() {
 	
 	// Log Plugin stop
 	self.logger.info("Presence Registrator stopped.");
+	
+	// Set config
+	self.config.set('enabled',false);
 	
 	// Notify user about Plugin stop
 	self.commandRouter.pushToastMessage('success', "Adios!", "Presence Registrator disabled!");
@@ -127,31 +133,14 @@ presenceRegistrator.prototype.setConf = function(varName, varValue) {
 // ******************************************************************************************
 // Custom functions to save and retrieve config parameters
 
-// Save config parameters from UIConfig
-presenceRegistrator.prototype.saveConfig = function(data) {
+// Save config parameters from config.json file
+presenceRegistrator.prototype.saveConfig = function(data)
+{
 	var self = this;
-	// Log what I am doing
 	self.logger.info("PRESENCE REGISTRATOR: Attempting to save parameters");
-	
-	// Save configuration parameters from data
 	self.config.set('maxVol', data['maxVol']);
 	self.config.set('minVol', data['minVol']);
 	self.config.set('listenedPin', data['listenedPin']);
-	
-	// Clear all Triggers and set them again
-	self.clearTriggers()
-		.then(self.createTriggers());
-	
-	// Notify log and user about the success of this operation
-	self.logger.info("PRESENCE REGISTRATOR: New configuration saved.");
-	self.commandRouter.pushToastMessage('success',"Presence Registrator", TRANSLATE.CONFIG_SAVED);
-};
-
-// Show config parameters from config.json file
-presenceRegistrator.prototype.showConfig = function(data)
-{
-	var self = this;
-	
 	// Extract configuration parameters from config file
 	var maxVol = self.config.get('maxVol');
 	var minVol = self.config.get('minVol');
@@ -162,6 +151,7 @@ presenceRegistrator.prototype.showConfig = function(data)
 		.then(self.createTriggers());
 	
 	// Notify log and user about the config parameters
+	self.logger.info("PRESENCE REGISTRATOR: New configuration saved.");
 	var outstr = "Listening on Pin " + pin + " with a maximum Volume of " + maxVol + "% and a minimum Volume of " + minVol + "%.";
 	self.logger.info("PRESENCE REGISTRATOR: " + outstr);
 	self.commandRouter.pushToastMessage('success',"GPIO Tester", outstr);

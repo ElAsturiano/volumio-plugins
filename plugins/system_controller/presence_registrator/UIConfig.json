@@ -43,22 +43,6 @@
           "value": "17"
         }
       ]
-    },
-	{
-      "id": "section_general_get",
-      "element": "section",
-      "label": "TRANSLATE.GENERAL_SETTINGS_SHOW",
-      "icon": "fa-plug",
-      "onSave": {"type":"controller", "endpoint":"system_controller/presence_registrator", "method":"showConfig"},
-      "saveButton": {
-        "label": "TRANSLATE.SHOW",
-        "data": [
-          
-        ]
-      },
-      "content": [
-        
-      ]
     }
   ]
 }
