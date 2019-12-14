@@ -14,7 +14,8 @@
         "data": [
           "maxVol",
 		  "minVol",
-          "listenedPin"
+          "listenedPinDoor",
+		  "listenedPinRoom"
         ]
       },
       "content": [
@@ -35,12 +36,20 @@
           "value": "20"
         },
         {
-          "id": "listenedPin",
+          "id": "listenedPinDoor",
           "type":"number",
           "element": "input",
-          "doc": "This is the pin number the plugin listens to to determine the presence of a person in this room",
-          "label": "Presence Listener Pin Number",
+          "doc": "This is the pin number the PIR-Sensor of the door is connected to",
+          "label": "PIR-Sensor Door, Pin Number (default: 17)",
           "value": "17"
+        },
+        {
+          "id": "listenedPinRoom",
+          "type":"number",
+          "element": "input",
+          "doc": "This is the pin number the PIR-Sensor of the room is connected to",
+          "label": "PIR-Sensor Room, Pin Number (default: 27)",
+          "value": "27"
         }
       ]
     }

@@ -20,6 +20,8 @@ function presenceRegistrator(context) {
 	
 	// Global Trigger array
 	this.triggers = [];
+	this.activatedDoor = 0;
+	this.activatedRoom = 0;
 
 }
 
@@ -145,11 +147,13 @@ presenceRegistrator.prototype.saveConfig = function(data)
 	self.logger.info("PRESENCE REGISTRATOR: Attempting to save parameters");
 	self.config.set('maxVol', data['maxVol']);
 	self.config.set('minVol', data['minVol']);
-	self.config.set('listenedPin', data['listenedPin']);
+	self.config.set('listenedPinDoor', data['listenedPinDoor']);
+	self.config.set('listenedPinRoom', data['listenedPinRoom']);
 	// Extract configuration parameters from config file
 	var maxVol = self.config.get('maxVol');
 	var minVol = self.config.get('minVol');
-	var pin = self.config.get('listenedPin');
+	var pinDoor = self.config.get('listenedPinDoor');
+	var pinRoom = self.config.get('listenedPinRoom');
 	
 	// Clear all Triggers and set them again
 	self.clearTriggers()
@@ -157,9 +161,9 @@ presenceRegistrator.prototype.saveConfig = function(data)
 	
 	// Notify log and user about the config parameters
 	self.logger.info("PRESENCE REGISTRATOR: New configuration saved.");
-	var outstr = "Listening on Pin " + pin + " with a maximum Volume of " + maxVol + "% and a minimum Volume of " + minVol + "%.";
+	var outstr = "Listening on Pins " + pinDoor + "(Door) and " + pinRoom + "(Room) with a maximum Volume of " + maxVol + "% and a minimum Volume of " + minVol + "%.";
 	self.logger.info("PRESENCE REGISTRATOR: " + outstr);
-	self.commandRouter.pushToastMessage('success',"GPIO Tester", outstr);
+	self.commandRouter.pushToastMessage('success',"Presence Registrator", outstr);
 };
 
 // End of custom configuration functions
@@ -177,27 +181,38 @@ presenceRegistrator.prototype.createTriggers = function()
 	var self = this;
 	
 	// Read config parameters
-	var pin = self.config.get('listenedPin');
+	var pinDoor = self.config.get('listenedPinDoor');
+	var pinRoom = self.config.get('listenedPinRoom');
 	
 	// Log what I am doing
-	self.logger.info("PRESENCE REGISTRATOR: Attempting to set up Trigger on pin " + pin + ".");
+	self.logger.info("PRESENCE REGISTRATOR: Attempting to set up Trigger on pins " + pinDoor + "(Door) and " + pinRoom + "(Room).");
 	
 	// Create rising and falling Trigger on configured pin
-	var listener = new Gpio(pin,'in','both', {debounceTimeout: 250});
-	self.logger.info("PRESENCE REGISTRATOR: Created Trigger.");
+	var listenerDoor = new Gpio(pinDoor,'in','both', {debounceTimeout: 250});
+	var listenerRoom = new Gpio(pinRoom,'in','both', {debounceTimeout: 250});
+	self.logger.info("PRESENCE REGISTRATOR: Created Triggers.");
 	
-	// Define Interrupt handler
-	listener.watch((err,value) => {
+	// Define Interrupt handlers
+	listenerDoor.watch((err,value) => {
 		if (err) {
-			self.logger.info("PRESENCE REGISTRATOR: Could not activate interrupt on pin " + pin + ".");
+			self.logger.info("PRESENCE REGISTRATOR: Could not activate interrupt on pin " + pinDoor + "(Door).");
 		}
-		self.presenceChanger(value);
+		self.presenceChangerDoor(value);
 	});
-	self.logger.info("PRESENCE REGISTRATOR: Assigned Interrupt Handler.");
+	self.logger.info("PRESENCE REGISTRATOR: Assigned Interrupt Handler Door.");
+	
+	listenerRoom.watch((err,value) => {
+		if (err) {
+			self.logger.info("PRESENCE REGISTRATOR: Could not activate interrupt on pin " + pinRoom + "(Room).");
+		}
+		self.presenceChangerRoom(value);
+	});
+	self.logger.info("PRESENCE REGISTRATOR: Assigned Interrupt Handler Room.");
 	
 	// Add Trigger to global Trigger array
-	self.triggers.push(listener);
-	self.logger.info("PRESENCE REGISTRATOR: Added Trigger to Global Array");
+	self.triggers.push(listenerDoor);
+	self.triggers.push(listenerRoom);
+	self.logger.info("PRESENCE REGISTRATOR: Added Triggers to Global Array");
 	
 	return libQ.resolve();
 }
@@ -221,11 +236,45 @@ presenceRegistrator.prototype.clearTriggers = function()
 	return libQ.resolve();	
 };
 
-// Interrupt handler function
-presenceRegistrator.prototype.presenceChanger = function(value)
+// Interrupt handler function Door
+presenceRegistrator.prototype.presenceChangerDoor = function(value)
 {
 	var self = this;
 	
+	// Check if there was a rising (1) or a falling (0) edge on the GPIO Pin
+	if (value > 0) {
+		self.activatedDoor = 1;
+	} else {
+		self.activatedDoor = -1;
+		if(self.activatedRoom == -1){
+			self.changeVolume(false);
+		}
+	}
+	
+	return libQ.resolve();
+}
+
+// Interrupt handler function Door
+presenceRegistrator.prototype.presenceChangerRoom = function(value)
+{
+	var self = this;
+	
+	// Check if there was a rising (1) or a falling (0) edge on the GPIO Pin
+	if (value > 0) {
+		self.activatedRoom = 1;
+		self.changeVolume(true);
+		
+	} else {
+		self.activatedRoom = -1;
+	}
+	
+	return libQ.resolve();
+}
+
+// Function to change volume (if value true -> elevate volume, else lower it)
+presenceRegistrator.prototype.changeVolume = function(value)
+{
+	var self = this;
 	// Get config data
 	var maxVol = self.config.get('maxVol');
 	var minVol = self.config.get('minVol');
@@ -233,25 +282,23 @@ presenceRegistrator.prototype.presenceChanger = function(value)
 	var present;
 	var outstr;
 	
-	// Check if there was a rising (1) or a falling (0) edge on the GPIO Pin
-	if(value==1){
+	// Check if there value is true (--> volume should rise) or false
+	if (value) {
 		present = true;
-		var outstr = "full";
+		outstr = "full";
 		socket.emit('volume',maxVol);
-	} else{
+	} else {
 		present = false;
 		outstr = "empty";
 		socket.emit('volume',minVol);
 	}
 	
 	// Write new presence information to config
-	self.config.set('presence',present);
+	self.config.set('present',present);
 	
 	// Notify log and user about it
 	self.logger.info("PRESENCE REGISTRATOR: The room is now " + outstr + ".");
 	self.commandRouter.pushToastMessage('success',"Presence Registrator", "The room is now " + outstr + ".");
-	
-	return libQ.resolve();
 }
 
 // End of custom Trigger functions
